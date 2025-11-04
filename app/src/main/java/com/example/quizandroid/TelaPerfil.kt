@@ -26,10 +26,12 @@ fun TelaPerfil(
     onSairClick: () -> Unit = {},
     onExcluirClick: () -> Unit = {}
 ) {
+    val backgroundRoxo = Color(0xFFD1C4E9) // Mesmo roxo da TelaLogin
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF2F2F2))
+            .background(backgroundRoxo)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -39,11 +41,11 @@ fun TelaPerfil(
             text = "Quiz",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+            color = Color(0xFF4A148C), // Roxo mais escuro para contraste
             modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)
         )
 
-        // Avatar genérico (ícone de pessoa)
+        // Avatar genérico
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = "Foto de perfil",
@@ -62,13 +64,14 @@ fun TelaPerfil(
             text = nome,
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color(0xFF311B92)
         )
 
         Text(
             text = email,
             fontSize = 16.sp,
-            color = Color.Gray,
+            color = Color.DarkGray,
             textAlign = TextAlign.Center
         )
 
@@ -114,7 +117,7 @@ fun TelaPerfil(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TelaPerfilPreview() {
     MaterialTheme {

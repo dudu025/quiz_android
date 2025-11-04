@@ -1,15 +1,16 @@
 package com.example.quizandroid
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun TelaLogin(
@@ -23,27 +24,33 @@ fun TelaLogin(
     var emailLogin by remember { mutableStateOf("") }
     var senhaLogin by remember { mutableStateOf("") }
 
+    // Fundo roxo médio
+    val backgroundRoxo = Color(0xFFD1C4E9)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(backgroundRoxo)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
 
-        // Logo ou nome do app
+        // Nome do app
         Text(
             text = "QUIZ",
             style = MaterialTheme.typography.headlineLarge,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Seção Criar Conta
+        // Criar Conta
         Text(
             text = "Criar Conta",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            color = Color(0xFF4A148C)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -85,10 +92,11 @@ fun TelaLogin(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Seção Login
+        // Login
         Text(
             text = "Login",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            color = Color(0xFF4A148C)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -121,8 +129,10 @@ fun TelaLogin(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewTelaLogin() {
-    TelaLogin()
+    MaterialTheme {
+        TelaLogin()
+    }
 }
