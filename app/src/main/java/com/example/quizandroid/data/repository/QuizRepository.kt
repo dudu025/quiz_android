@@ -1,5 +1,7 @@
 package com.example.quizandroid.data.repository
 
+import com.example.quizandroid.data.UserDao
+import com.example.quizandroid.data.local.ScoreDao
 import com.example.quizandroid.data.remote.OpenTdbApiService
 import com.example.quizandroid.data.remote.dto.QuestionResponse
 

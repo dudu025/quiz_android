@@ -26,7 +26,14 @@ fun AppNavigation() {
     ) {
         // Rota para TelaLogin
         composable(AppRoutes.LOGIN) {
-            TelaLogin(navController = navController)
+            TelaLogin(
+                onLoginSucesso = {
+                    navController.navigate(AppRoutes.START) {
+                        // Limpa a pilha e garante que o login não vai ser acessado após login bem-sucedido
+                        popUpTo(AppRoutes.LOGIN) { inclusive = true }
+                    }
+                }
+            )
         }
 
         // Rota para StartScreen
