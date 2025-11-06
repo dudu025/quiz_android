@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QuizAndroid">
         <activity
-            android:name=".ui.theme.navigation.MainActivity"
+            android:name="MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.QuizAndroid">
