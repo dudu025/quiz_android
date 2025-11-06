@@ -1,8 +1,6 @@
-<<<<<<<< HEAD:app/src/main/java/com/example/quizandroid/ui/theme/game/FinalDaPartida.kt
 package com.example.quizandroid.ui.theme.game
-========
-package com.example.quizandroid.ui.theme.screens
->>>>>>>> febc67f52c204dba3ea3471834182f55f958af6e:app/src/main/java/com/example/quizandroid/ui/theme/screens/FinalDaPartida.kt
+
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
