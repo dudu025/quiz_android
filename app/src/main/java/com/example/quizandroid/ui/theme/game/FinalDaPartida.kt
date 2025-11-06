@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun TelaFinalPartida(
-    pontuacao: String = "10/10",
+fun TelaFinalPartida (
+    pontuacao : String = "10/10",
     onVoltarInicioClick: () -> Unit = {}
-) {
+){
     val backgroundRoxo = Color(0xFFD1C4E9)
     val corTitulo = Color(0xFF4A148C)
 
