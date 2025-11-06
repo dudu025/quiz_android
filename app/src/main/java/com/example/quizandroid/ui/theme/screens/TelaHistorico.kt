@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/com/example/quizandroid/ui/theme/ranking/TelaHistorico.kt
-package com.example.quizandroid.ui.theme.ranking
-========
 package com.example.quizandroid.ui.theme.screens
->>>>>>>> febc67f52c204dba3ea3471834182f55f958af6e:app/src/main/java/com/example/quizandroid/ui/theme/screens/TelaHistorico.kt
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
