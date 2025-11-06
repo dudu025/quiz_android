@@ -8,6 +8,7 @@ import com.example.quizandroid.ui.theme.screens.CategoryScreen
 import com.example.quizandroid.ui.theme.screens.StartScreen
 import com.example.quizandroid.ui.theme.screens.TelaLogin
 import com.example.quizandroid.ui.theme.screens.TelaPerfil
+import com.example.quizandroid.ui.theme.screens.TelaEditarPerfil // <-- IMPORTAR A TELA EDITAR PERFIL
 
 // Rotas do App
 object AppRoutes {
@@ -15,6 +16,7 @@ object AppRoutes {
     const val START = "start"
     const val CATEGORY = "category"
     const val PROFILE = "profile"
+    const val EDITAR_PERFIL = "editarPerfil" // <-- ROTA ADICIONADA
     // Adicione mais rotas aqui (ex: "quiz", "score")
 }
 
@@ -31,6 +33,10 @@ fun AppNavigation() {
         composable(AppRoutes.LOGIN) {
             TelaLogin(
                 onLoginSucesso = {
+                    // Aqui você substitui pelos dados do usuário logado
+                    // Agora o ViewModel cuida disso usando o Room, então não precisa mais passar nome e email aqui
+
+                    // Passa os dados para a tela de start
                     navController.navigate(AppRoutes.START) {
                         // Limpa a pilha e garante que o login não vai ser acessado após login bem-sucedido
                         popUpTo(AppRoutes.LOGIN) { inclusive = true }
@@ -51,7 +57,15 @@ fun AppNavigation() {
 
         // Rota para TelaPerfil
         composable(AppRoutes.PROFILE) {
+            // Agora os dados do usuário são carregados via ViewModel + Room
+            // (não é mais necessário passar nome e email manualmente)
             TelaPerfil(navController = navController)
+        }
+
+        // Rota para TelaEditarPerfil
+        composable(AppRoutes.EDITAR_PERFIL) {
+            // Tela que permite editar os dados do usuário logado
+            TelaEditarPerfil(navController = navController)
         }
 
         /*

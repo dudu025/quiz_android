@@ -1,92 +1,133 @@
 package com.example.quizandroid.ui.theme.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.quizandroid.ui.theme.QuizAndroidTheme
+import com.example.quizandroid.R
+import com.example.quizandroid.data.repository.UserRepository
+import com.example.quizandroid.viewmodel.UserViewModel
+import com.example.quizandroid.viewmodel.UserViewModelFactory
 
 @Composable
 fun TelaPerfil(navController: NavHostController) {
-    // corzinha pra deixar bonito
-    val corFundo = Color(0xFFD1C4E9)
-    val corTextoTitulo = Color(0xFF311B92)
-    val corBotao = Color(0xFFB39DDB)
-    val corTextoBotao = Color.White
+    val context = LocalContext.current
+    val repository = UserRepository(context)
+    val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
+
+    // Chama a função de carregar o usuário logado ao entrar na tela
+    LaunchedEffect(Unit) {
+        userViewModel.carregarUsuarioLogado()
+    }
+
+    val usuario by userViewModel.usuarioLogado.collectAsState(initial = null)
+    val backgroundRoxo = Color(0xFFD1C4E9)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(corFundo)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            .background(backgroundRoxo)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
-
         Text(
             text = "Meu Perfil",
-            style = MaterialTheme.typography.displaySmall,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = corTextoTitulo
+            color = Color(0xFF4A148C),
+            modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Você pode adicionar mais Text() aqui com os dados do usuário
-        Text(
-            text = "Email: (email.do.usuario@email.com)",
-            style = MaterialTheme.typography.bodyLarge,
-            color = corTextoTitulo
+        Image(
+            painter = painterResource(id = R.drawable.fotoperfil),
+            contentDescription = "Foto de perfil",
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.9f))
+                .padding(16.dp)
         )
+
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Exibe o nome e email do usuário logado
         Text(
-            text = "Nome: (Nome do Usuário)",
-            style = MaterialTheme.typography.bodyLarge,
-            color = corTextoTitulo
+            text = usuario?.nome ?: "Carregando...",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            color = Color(0xFF4A148C)
         )
 
-        Spacer(modifier = Modifier.weight(1f)) // botão para baixo
+        Text(
+            text = usuario?.email ?: "",
+            fontSize = 16.sp,
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center
+        )
 
-        // Botão Voltar
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Button(
+            onClick = { navController.navigate("editarPerfil") },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
+            modifier = Modifier.fillMaxWidth().height(50.dp)
+        ) {
+            Text("Editar", color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = {
-                // voltar para a tela anterior
-                navController.popBackStack()
+                userViewModel.deslogarUsuario()
+                navController.popBackStack("login", inclusive = false)
             },
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(50.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = corBotao
-            )
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
+            modifier = Modifier.fillMaxWidth().height(50.dp)
         ) {
-            Text(
-                text = "Voltar",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = corTextoBotao
-            )
+            Text("Sair", color = Color.White)
         }
-        Spacer(modifier = Modifier.height(32.dp))
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun TelaPerfilPreview() {
-    QuizAndroidTheme {
-        TelaPerfil(navController = rememberNavController())
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { userViewModel.deletarUsuarioLogado() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth().height(50.dp)
+        ) {
+            Text("Excluir", color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = { navController.popBackStack() },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
+            modifier = Modifier.fillMaxWidth(0.8f).height(50.dp)
+        ) {
+            Text("Voltar", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
