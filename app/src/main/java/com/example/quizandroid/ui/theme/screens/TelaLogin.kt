@@ -1,4 +1,4 @@
-package com.example.quizandroid
+package com.example.quizandroid.ui.theme.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background

@@ -1,10 +1,13 @@
-package com.example.quizandroid
+package com.example.quizandroid.ui.theme.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.quizandroid.ui.theme.screens.CategoryScreen
+import com.example.quizandroid.ui.theme.screens.StartScreen
+import com.example.quizandroid.ui.theme.screens.TelaLogin
+import com.example.quizandroid.ui.theme.screens.TelaPerfil
 
 // Rotas do App
 object AppRoutes {

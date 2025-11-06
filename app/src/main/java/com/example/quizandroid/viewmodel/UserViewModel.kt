@@ -3,7 +3,7 @@ package com.example.quizandroid.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.mutableStateOf
-import com.example.quizandroid.data.User
+import com.example.quizandroid.data.local.entities.User
 import com.example.quizandroid.data.repository.UserRepository
 import kotlinx.coroutines.launch
 

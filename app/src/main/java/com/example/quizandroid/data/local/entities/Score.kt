@@ -1,4 +1,4 @@
-package com.example.quizandroid.data.local
+package com.example.quizandroid.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

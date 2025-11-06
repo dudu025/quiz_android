@@ -1,4 +1,4 @@
-package com.example.quizandroid
+package com.example.quizandroid.ui.theme.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quizandroid.ui.theme.QuizAndroidTheme
+import com.example.quizandroid.ui.theme.navigation.AppRoutes
 
 @Composable
 fun StartScreen(

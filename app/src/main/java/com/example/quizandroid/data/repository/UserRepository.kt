@@ -2,8 +2,8 @@ package com.example.quizandroid.data.repository
 
 import android.content.Context
 import androidx.room.Room
-import com.example.quizandroid.data.AppDatabase
-import com.example.quizandroid.data.User
+import com.example.quizandroid.data.local.AppDatabase
+import com.example.quizandroid.data.local.entities.User
 import com.example.quizandroid.data.UserDao
 
 class UserRepository(context: Context) {
