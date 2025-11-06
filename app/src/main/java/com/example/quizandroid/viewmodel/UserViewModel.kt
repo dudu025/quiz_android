@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.mutableStateOf
 import com.example.quizandroid.data.local.entities.User
-import com.example.quizandroid.data.repository.UserRepository
+import com.example.quizandroid.data.repository.QuizRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class UserViewModel(private val repository: UserRepository) : ViewModel() {
+class UserViewModel(private val repository: QuizRepository) : ViewModel() {
 
     // Mensagens de feedback (login, erros, etc.)
     val mensagem = mutableStateOf("")
@@ -23,6 +23,7 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             val user = repository.login(email, senha)
             if (user != null) {
+                repository.setUserLoggedIn(user.email, true)
                 _usuarioLogado.emit(user)
                 mensagem.value = "Login bem-sucedido!"
                 onLoginSuccess()

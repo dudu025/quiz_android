@@ -15,14 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.quizandroid.data.repository.UserRepository
+import com.example.quizandroid.data.remote.OpenTdbApiService
+import com.example.quizandroid.data.repository.QuizRepository
 import com.example.quizandroid.viewmodel.UserViewModel
 import com.example.quizandroid.viewmodel.UserViewModelFactory
 
 @Composable
 fun TelaEditarPerfil(navController: NavHostController) {
     val context = LocalContext.current
-    val repository = UserRepository(context)
+    val repository = QuizRepository(apiService)
     val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
 
     // Chama a função de carregar o usuário logado ao entrar na tela

@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/com/example/quizandroid/ui/theme/auth/TelaLogin.kt
-package com.example.quizandroid.ui.theme.auth
-========
 package com.example.quizandroid.ui.theme.screens
->>>>>>>> febc67f52c204dba3ea3471834182f55f958af6e:app/src/main/java/com/example/quizandroid/ui/theme/screens/TelaLogin.kt
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -18,9 +14,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.quizandroid.data.repository.UserRepository
 import com.example.quizandroid.viewmodel.UserViewModel
 import com.example.quizandroid.viewmodel.UserViewModelFactory
+import com.example.quizandroid.QuizApplication
+import com.example.quizandroid.data.repository.QuizRepository
 
 @Composable
 fun TelaLogin(
@@ -28,8 +25,9 @@ fun TelaLogin(
 ) {
     val backgroundRoxo = Color(0xFFD1C4E9)
     val context = LocalContext.current
-    val repository = UserRepository(context)
-    val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
+    val application = context.applicationContext as QuizApplication
+    val quizRepository = application.quizRepository
+    val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(quizRepository))
 
     var emailLogin by remember { mutableStateOf("") }
     var senhaLogin by remember { mutableStateOf("") }
