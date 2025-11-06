@@ -1,4 +1,4 @@
-package com.example.quizandroid
+package com.example.quizandroid.ui.theme.ranking
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
