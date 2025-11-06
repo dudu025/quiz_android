@@ -27,4 +27,25 @@ class UserRepository(context: Context) {
     suspend fun login(email: String, senha: String): User? {
         return userDao.login(email, senha)
     }
+
+    suspend fun updateUser(user: User) {
+        userDao.update(user)
+    }
+
+    suspend fun deleteUser(user: User) {
+        userDao.delete(user)
+    }
+
+    suspend fun getUserLogado(): User? {
+        return userDao.getUserLogado()
+    }
+
+    suspend fun setUserLoggedIn(userId: Int, isLoggedIn: Boolean) {
+        // Atualiza o campo isLoggedIn do usuário para true ou false
+        val user = userDao.getUserByEmail(userId.toString()) // ou outra abordagem de identificador
+        user?.let {
+            val updatedUser = it.copy(isLoggedIn = isLoggedIn)
+            userDao.update(updatedUser)
+        }
+    }
 }
