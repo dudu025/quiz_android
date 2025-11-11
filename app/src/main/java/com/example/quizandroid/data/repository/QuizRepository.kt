@@ -12,22 +12,27 @@ class QuizRepository (
     private val scoreDao : ScoreDao,
     private val userDao: UserDao
 ) {
+
+    // --- ESTA FUNÇÃO FOI MODIFICADA ---
     suspend fun getQuestionsFromapi(categoryId: Int): List<QuestionResponse> {
-        return try {
-            val response = apiService.getQuestions(
-                amount = 10,
-                category = categoryId
-            )
-            if (response.isSuccessful && response.body() !=null) {
-                response.body()!!.results
-            } else {
-                emptyList()
-            }
-        } catch (e:Exception) {
-            println("Erro ao buscar perguntas : ${e.message}")
-            emptyList()
+        // O 'try-catch' foi movido para o ViewModel,
+        // aqui vamos deixar o erro "explodir" se acontecer
+
+        val response = apiService.getQuestions(
+            amount = 10,
+            category = categoryId
+        )
+
+        if (response.isSuccessful && response.body() != null) {
+            // Sucesso! Retorna os resultados
+            return response.body()!!.results
+        } else {
+            // Falha na API: lança um erro que o ViewModel vai pegar
+            throw Exception("Falha na API: ${response.message()}")
         }
     }
+    // --- FIM DA MODIFICAÇÃO ---
+
 
     suspend fun insertUser(user: User) {
         userDao.insert(user)

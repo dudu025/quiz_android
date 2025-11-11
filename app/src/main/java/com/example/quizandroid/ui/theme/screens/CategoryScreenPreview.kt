@@ -17,17 +17,30 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quizandroid.ui.theme.QuizAndroidTheme
+import com.example.quizandroid.ui.theme.navigation.AppRoutes // Importar AppRoutes
+
+// --- 1. MAPEAMENTO DOS IDs DA API (OpenTDB) ---
+val categoryMap = mapOf(
+    "Geografia" to 22,
+    "Filmes" to 11,
+    "História" to 23,
+    "Ciência" to 17,
+    "Esportes" to 21,
+    "Humor" to 9 // "Humor" não existe na API, usei "Conhecimentos Gerais" (ID 9)
+)
 
 @Composable
 fun CategoryScreen(
-    navController: NavHostController // navhost igual do professor
+    navController: NavHostController
 ) {
     // corzinha dnv
     val corFundo = Color(0xFFD1C4E9)
     val corBotaoCategoria = Color(0xFFB39DDB)
     val corTextoTitulo = Color(0xFF311B92)
     val corTextoBotao = Color.White
-    val categories = listOf("Geografia", "Humor", "Filmes", "História", "Ciência", "Esportes")
+
+    // Pega as chaves do mapa para os botões
+    val categories = categoryMap.keys.toList()
 
     Column(
         modifier = Modifier
@@ -52,9 +65,15 @@ fun CategoryScreen(
             items(categories) { categoryName ->
                 Button(
                     onClick = {
-                        // (igual ao exemplo do professor)
-                        // quando criar a tela do quiz, usar:
-                        // navController.navigate("quiz/$categoryName")
+                        // --- 2. LÓGICA DE NAVEGAÇÃO ---
+                        val categoryId = categoryMap[categoryName] ?: 9 // Pega o ID
+
+                        // Navega para a tela do Quiz
+                        navController.navigate(
+                            AppRoutes.QUIZ
+                                .replace("{categoryId}", categoryId.toString())
+                                .replace("{categoryName}", categoryName)
+                        )
                     },
 
                     modifier = Modifier

@@ -1,5 +1,4 @@
 package com.example.quizandroid
-
 import android.app.Application
 import androidx.room.Room
 import com.example.quizandroid.data.local.AppDatabase
@@ -13,9 +12,7 @@ class QuizApplication : Application() {
             applicationContext,
             AppDatabase::class.java,
             "quiz_db"
-        )
-            .fallbackToDestructiveMigration() // 🔹 ADICIONE ESTA LINHA
-            .build()
+        ).build()
     }
 
     private val apiService: OpenTdbApiService by lazy {

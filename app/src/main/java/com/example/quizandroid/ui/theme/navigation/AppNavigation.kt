@@ -8,7 +8,10 @@ import com.example.quizandroid.ui.theme.screens.CategoryScreen
 import com.example.quizandroid.ui.theme.screens.StartScreen
 import com.example.quizandroid.ui.theme.screens.TelaLogin
 import com.example.quizandroid.ui.theme.screens.TelaPerfil
-import com.example.quizandroid.ui.theme.screens.TelaEditarPerfil // <-- IMPORTAR A TELA EDITAR PERFIL
+import com.example.quizandroid.ui.theme.screens.TelaEditarPerfil
+import com.example.quizandroid.ui.theme.game.QuizScreen
+// 1. ADICIONAR O IMPORT DA TELA FINAL
+import com.example.quizandroid.ui.theme.game.TelaFinalDaPartida
 
 // Rotas do App
 object AppRoutes {
@@ -16,8 +19,10 @@ object AppRoutes {
     const val START = "start"
     const val CATEGORY = "category"
     const val PROFILE = "profile"
-    const val EDITAR_PERFIL = "editarPerfil" // <-- ROTA ADICIONADA
-    // Adicione mais rotas aqui (ex: "quiz", "score")
+    const val EDITAR_PERFIL = "editarPerfil"
+    const val QUIZ = "quiz/{categoryId}/{categoryName}"
+    // 2. ADICIONAR A ROTA FINAL
+    const val FINAL = "final/{pontuacao}"
 }
 
 @Composable
@@ -29,51 +34,67 @@ fun AppNavigation() {
         navController = navController,
         startDestination = AppRoutes.LOGIN // Começa na tela de Login
     ) {
-        // Rota para TelaLogin
+        // Rota para TelaLogin (Seu código está correto)
         composable(AppRoutes.LOGIN) {
             TelaLogin(
                 onLoginSucesso = {
-                    // Aqui você substitui pelos dados do usuário logado
-                    // Agora o ViewModel cuida disso usando o Room, então não precisa mais passar nome e email aqui
-
-                    // Passa os dados para a tela de start
                     navController.navigate(AppRoutes.START) {
-                        // Limpa a pilha e garante que o login não vai ser acessado após login bem-sucedido
                         popUpTo(AppRoutes.LOGIN) { inclusive = true }
                     }
                 }
             )
         }
 
-        // Rota para StartScreen
+        // Rota para StartScreen (Seu código está correto)
         composable(AppRoutes.START) {
             StartScreen(navController = navController)
         }
 
-        // Rota para CategoryScreen
+        // Rota para CategoryScreen (Seu código está correto)
         composable(AppRoutes.CATEGORY) {
             CategoryScreen(navController = navController)
         }
 
-        // Rota para TelaPerfil
+        // Rota para TelaPerfil (Seu código está correto)
         composable(AppRoutes.PROFILE) {
-            // Agora os dados do usuário são carregados via ViewModel + Room
-            // (não é mais necessário passar nome e email manualmente)
             TelaPerfil(navController = navController)
         }
 
-        // Rota para TelaEditarPerfil
+        // Rota para TelaEditarPerfil (Seu código está correto)
         composable(AppRoutes.EDITAR_PERFIL) {
-            // Tela que permite editar os dados do usuário logado
             TelaEditarPerfil(navController = navController)
         }
 
-        /*
-        // Exemplo de como você fará a tela de Quiz (igual ao do professor)
-        composable("quiz/{categoria}") { backStackEntry ->
-            val categoria = backStackEntry.arguments?.getString("categoria")
-            // ... chamar sua TelaQuiz(categoria = categoria)
+        // --- 3. BLOCO QUE FALTAVA (QUIZ) ---
+        composable(AppRoutes.QUIZ) { backStackEntry ->
+            // Extrai os argumentos da rota
+            val categoryId = backStackEntry.arguments?.getString("categoryId")?.toIntOrNull() ?: 0
+            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Quiz"
+
+            QuizScreen(
+                categoryId = categoryId,
+                categoryName = categoryName,
+                navController = navController
+            )
         }
-        */
+
+        // --- 4. BLOCO QUE FALTAVA (FINAL DA PARTIDA) ---
+        composable(AppRoutes.FINAL) { backStackEntry ->
+            // Pega a pontuação que foi passada na rota (ex: "8-10")
+            // Substitui o hífen "-" por "/" (ex: "8/10")
+            val pontuacao = backStackEntry.arguments?.getString("pontuacao")
+                ?.replace("-", "/") ?: "0/0"
+
+            // Note que o nome da sua função é "TelaFinalDaPartida"
+            TelaFinalDaPartida(
+                pontuacao = pontuacao,
+                onVoltarInicioClick = {
+                    // Ao clicar, limpa tudo e volta para a tela de início
+                    navController.navigate(AppRoutes.START) {
+                        popUpTo(AppRoutes.START) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
