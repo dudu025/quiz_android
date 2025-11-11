@@ -1,7 +1,5 @@
 package com.example.quizandroid.ui.theme.game
 
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,7 +64,7 @@ fun TelaFinalDaPartida(
                 fontSize = 32.sp,
                 color = Color(0xFF311B92),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom =25.dp)
+                modifier = Modifier.padding(bottom = 25.dp)
             )
 
             Text(
@@ -93,10 +91,10 @@ fun TelaFinalDaPartida(
     }
 }
 
-@Preview (showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TelaFinalDaPartidaPreview() {
     MaterialTheme {
-        TelaFinalPartida(pontuacao = "8/10")
+        TelaFinalDaPartida(pontuacao = "8/10")
     }
 }

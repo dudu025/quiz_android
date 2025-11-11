@@ -24,7 +24,7 @@ interface UserDao {
     suspend fun login(email: String, senha: String): User?
 
     // Método para buscar um usuário por e-mail
-    @Query("SELECT * FROM usuarios WHERE email = email LIMIT 1")
+    @Query("SELECT * FROM usuarios WHERE email = :email LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
 
     // Método para buscar o usuário logado (AQUI VOCÊ PODE USAR O ID OU OUTRO CRITÉRIO)
