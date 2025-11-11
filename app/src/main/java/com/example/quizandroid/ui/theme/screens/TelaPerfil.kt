@@ -19,23 +19,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.quizandroid.QuizApplication
 import com.example.quizandroid.R
+import com.example.quizandroid.ui.theme.navigation.AppRoutes
+import com.example.quizandroid.viewmodel.ProfileViewModel
+import com.example.quizandroid.viewmodel.ProfileViewModelFactory
 import com.example.quizandroid.viewmodel.UserViewModel
 import com.example.quizandroid.viewmodel.UserViewModelFactory
 
 @Composable
 fun TelaPerfil(navController: NavHostController) {
     val context = LocalContext.current
-    val repository = UserRepository(context)
-    val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(repository))
+    val application = context.applicationContext as QuizApplication
+    val viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModelFactory(application.quizRepository)
+    )
+    val uiState by viewModel.uiState.collectAsState()
 
-    // Chama a função de carregar o usuário logado ao entrar na tela
-    LaunchedEffect(Unit) {
-        userViewModel.carregarUsuarioLogado()
-    }
-
-    val usuario by userViewModel.usuarioLogado.collectAsState(initial = null)
     val backgroundRoxo = Color(0xFFD1C4E9)
+
+    LaunchedEffect(uiState.logoutSucesso) {
+        if (uiState.logoutSucesso) {
+            navController.navigate(AppRoutes.LOGIN) {
+                popUpTo(0) // Limpa TUDO
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -66,7 +75,7 @@ fun TelaPerfil(navController: NavHostController) {
 
         // Exibe o nome e email do usuário logado
         Text(
-            text = usuario?.nome ?: "Carregando...",
+            text = uiState.nome,
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
@@ -74,7 +83,7 @@ fun TelaPerfil(navController: NavHostController) {
         )
 
         Text(
-            text = usuario?.email ?: "",
+            text = uiState.email,
             fontSize = 16.sp,
             color = Color.DarkGray,
             textAlign = TextAlign.Center
@@ -83,7 +92,7 @@ fun TelaPerfil(navController: NavHostController) {
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
-            onClick = { navController.navigate("editarPerfil") },
+            onClick = { navController.navigate(AppRoutes.EDITAR_PERFIL) },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
             modifier = Modifier.fillMaxWidth().height(50.dp)
@@ -94,10 +103,7 @@ fun TelaPerfil(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = {
-                userViewModel.deslogarUsuario()
-                navController.popBackStack("login", inclusive = false)
-            },
+            onClick = { viewModel.deslogarUsuario() },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
             modifier = Modifier.fillMaxWidth().height(50.dp)
@@ -108,7 +114,7 @@ fun TelaPerfil(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { userViewModel.deletarUsuarioLogado() },
+            onClick = { viewModel.deletarUsuarioLogado() },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth().height(50.dp)
