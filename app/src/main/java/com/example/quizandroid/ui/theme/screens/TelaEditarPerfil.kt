@@ -1,5 +1,6 @@
 package com.example.quizandroid.ui.theme.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,8 +17,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.quizandroid.QuizApplication
+import com.example.quizandroid.ui.theme.navigation.AppRoutes
 import com.example.quizandroid.viewmodel.ProfileViewModel
 import com.example.quizandroid.viewmodel.ProfileViewModelFactory
+import kotlinx.coroutines.launch
 
 @Composable
 fun TelaEditarPerfil(navController: NavHostController) {
@@ -32,12 +35,13 @@ fun TelaEditarPerfil(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
 
-    // Atualiza os campos automaticamente quando o uiState mudar
+    // Atualiza campos quando o estado muda
     LaunchedEffect(uiState) {
         nome = uiState.nome
         email = uiState.email
     }
 
+    val scope = rememberCoroutineScope()
     val backgroundRoxo = Color(0xFFD1C4E9)
     val corTitulo = Color(0xFF4A148C)
 
@@ -82,7 +86,7 @@ fun TelaEditarPerfil(navController: NavHostController) {
             OutlinedTextField(
                 value = senha,
                 onValueChange = { senha = it },
-                label = { Text("Senha") },
+                label = { Text("Senha (opcional)") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,8 +95,18 @@ fun TelaEditarPerfil(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    viewModel.SalvarPerfil(nome, email, senha)
-                    navController.navigate("perfil")
+                    scope.launch {
+                        try {
+                            viewModel.SalvarPerfil(nome, email, senha)
+                            Toast.makeText(context, "Perfil atualizado!", Toast.LENGTH_SHORT).show()
+                            // ✅ Volta pra tela de perfil corretamente
+                            navController.navigate(AppRoutes.PROFILE) {
+                                popUpTo(AppRoutes.EDITAR_PERFIL) { inclusive = true }
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Erro ao salvar: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier

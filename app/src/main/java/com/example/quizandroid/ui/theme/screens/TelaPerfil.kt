@@ -24,8 +24,6 @@ import com.example.quizandroid.R
 import com.example.quizandroid.ui.theme.navigation.AppRoutes
 import com.example.quizandroid.viewmodel.ProfileViewModel
 import com.example.quizandroid.viewmodel.ProfileViewModelFactory
-import com.example.quizandroid.viewmodel.UserViewModel
-import com.example.quizandroid.viewmodel.UserViewModelFactory
 
 @Composable
 fun TelaPerfil(navController: NavHostController) {
@@ -38,10 +36,13 @@ fun TelaPerfil(navController: NavHostController) {
 
     val backgroundRoxo = Color(0xFFD1C4E9)
 
+    // ✅ NÃO precisa mais chamar carregarUsuarioLogado() manualmente
+    // O ViewModel já faz isso no init {}
+
     LaunchedEffect(uiState.logoutSucesso) {
         if (uiState.logoutSucesso) {
             navController.navigate(AppRoutes.LOGIN) {
-                popUpTo(0) // Limpa TUDO
+                popUpTo(0)
             }
         }
     }
@@ -73,7 +74,6 @@ fun TelaPerfil(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Exibe o nome e email do usuário logado
         Text(
             text = uiState.nome,
             fontSize = 20.sp,
@@ -128,7 +128,9 @@ fun TelaPerfil(navController: NavHostController) {
             onClick = { navController.popBackStack() },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
-            modifier = Modifier.fillMaxWidth(0.8f).height(50.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(50.dp)
         ) {
             Text("Voltar", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
         }
