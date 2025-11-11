@@ -1,6 +1,5 @@
 package com.example.quizandroid.ui.theme.screens
 
-import android.provider.ContactsContract.Profile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,12 +16,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.quizandroid.QuizApplication
-import com.example.quizandroid.data.remote.OpenTdbApiService
-import com.example.quizandroid.data.repository.QuizRepository
 import com.example.quizandroid.viewmodel.ProfileViewModel
 import com.example.quizandroid.viewmodel.ProfileViewModelFactory
-import com.example.quizandroid.viewmodel.UserViewModel
-import com.example.quizandroid.viewmodel.UserViewModelFactory
 
 @Composable
 fun TelaEditarPerfil(navController: NavHostController) {
@@ -33,10 +28,15 @@ fun TelaEditarPerfil(navController: NavHostController) {
     )
     val uiState by viewModel.uiState.collectAsState()
 
-
-    var nome by remember { mutableStateOf(uiState.nome) }
-    var email by remember { mutableStateOf(uiState.email) }
+    var nome by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
+
+    // Atualiza os campos automaticamente quando o uiState mudar
+    LaunchedEffect(uiState) {
+        nome = uiState.nome
+        email = uiState.email
+    }
 
     val backgroundRoxo = Color(0xFFD1C4E9)
     val corTitulo = Color(0xFF4A148C)
@@ -65,14 +65,18 @@ fun TelaEditarPerfil(navController: NavHostController) {
                 value = nome,
                 onValueChange = { nome = it },
                 label = { Text("Nome") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             )
 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             )
 
             OutlinedTextField(
@@ -80,7 +84,9 @@ fun TelaEditarPerfil(navController: NavHostController) {
                 onValueChange = { senha = it },
                 label = { Text("Senha") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
             )
 
             Button(
@@ -89,7 +95,9 @@ fun TelaEditarPerfil(navController: NavHostController) {
                     navController.navigate("perfil")
                 },
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth().height(50.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
             ) {
                 Text("Salvar Alterações")
             }
