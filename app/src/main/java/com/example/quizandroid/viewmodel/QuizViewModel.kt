@@ -1,6 +1,7 @@
 package com.example.quizandroid.viewmodel // Verifique se o package está correto
 
 import android.text.Html // Importe isso para decodificar o texto
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 data class QuizQuestion(
     val text: String,
     val options: List<String>,
+    val category: String?,
     val correctAnswer: String
 )
 
@@ -58,7 +60,6 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
                 val questionsFromApi = repository.getQuestionsFromapi(categoryId)
                 // Converte e limpa as perguntas (API manda texto em HTML)
                 val cleanQuestions = questionsFromApi.map { it.toQuizQuestion() }
-
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -69,8 +70,55 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
+                Log.e("QuizViewModel", "Falha ao buscar perguntas da API. Erro: ", e)
                 _uiState.update { it.copy(isLoading = false, error = "Falha ao carregar perguntas.") }
             }
+        }
+    }
+    private fun mapQuestions(apiQuestions: List<com.example.quizandroid.data.remote.dto.QuestionResponse>): List<QuizQuestion> {
+
+        // Usamos .mapNotNull para pular automaticamente qualquer pergunta que falhe
+        return apiQuestions.mapNotNull { apiQuestion ->
+
+            // --- 1. VALIDAÇÃO ---
+            // Criamos variáveis locais NÃO-NULAS.
+            // Se qualquer uma falhar (for nula), o 'return@mapNotNull null'
+            // pula esta pergunta e vai para a próxima.
+            val category = apiQuestion.category ?: return@mapNotNull null
+            val text = apiQuestion.question ?: return@mapNotNull null
+            val correctAnswer = apiQuestion.correctAnswer ?: return@mapNotNull null
+
+            // 👇 AQUI ESTÁ A CHAVE DO SEU ERRO ATUAL
+            // Esta variável 'incorrectAnswers' agora é LOCAL e NÃO-NULA
+            val incorrectAnswers = apiQuestion.incorrectAnswers ?: return@mapNotNull null
+
+
+            // --- 2. LIMPEZA ---
+            // Como 'category', 'text', 'correctAnswer' e 'incorrectAnswers'
+            // são NÃO-NULAS, podemos usá-las com segurança.
+
+            val cleanCategory = Html.fromHtml(category, Html.FROM_HTML_MODE_LEGACY).toString()
+            val cleanText = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY).toString()
+            val cleanCorrect = Html.fromHtml(correctAnswer, Html.FROM_HTML_MODE_LEGACY).toString()
+
+            // 👇 Usamos a 'incorrectAnswers' local (NÃO-NULA), por isso .map é seguro
+            val cleanIncorrect = incorrectAnswers.map {
+                Html.fromHtml(it, Html.FROM_HTML_MODE_LEGACY).toString()
+            }
+
+
+            // --- 3. EMBARALHAR ---
+            // 👇 Usamos 'cleanIncorrect' (NÃO-NULA), por isso o '+' é seguro
+            val options = (cleanIncorrect + cleanCorrect).shuffled()
+
+
+            // --- 4. RETORNO ---
+            QuizQuestion(
+                category = cleanCategory,
+                text = cleanText,
+                options = options,
+                correctAnswer = cleanCorrect
+            )
         }
     }
 
@@ -116,13 +164,20 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
 private fun QuestionResponse.toQuizQuestion(): QuizQuestion {
     // A API manda a resposta correta e as erradas em listas separadas
     // Vamos juntar, embaralhar e limpar o texto (HTML)
-    val options = (this.incorrectAnswers + this.correctAnswer).shuffled()
+    val options = (this.incorrectAnswers?.plus(this.correctAnswer))?.shuffled()
 
-    return QuizQuestion(
-        text = Html.fromHtml(this.question, Html.FROM_HTML_MODE_LEGACY).toString(),
-        options = options.map { Html.fromHtml(it, Html.FROM_HTML_MODE_LEGACY).toString() },
-        correctAnswer = Html.fromHtml(this.correctAnswer, Html.FROM_HTML_MODE_LEGACY).toString()
-    )
+    if (options != null) {
+        return QuizQuestion(
+            text = Html.fromHtml(this.question, Html.FROM_HTML_MODE_LEGACY).toString(),
+            options = options.mapNotNull {
+                Html.fromHtml(it, Html.FROM_HTML_MODE_LEGACY).toString()
+            },
+            correctAnswer = Html.fromHtml(this.correctAnswer, Html.FROM_HTML_MODE_LEGACY)
+                .toString(),
+            category = category
+        )
+    }
+    return TODO("Provide the return value")
 }
 
 // Factory para o QuizViewModel (igual às suas outras factories)

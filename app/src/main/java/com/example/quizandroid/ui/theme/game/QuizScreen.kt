@@ -1,5 +1,6 @@
 package com.example.quizandroid.ui.theme.game
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,7 +28,6 @@ import com.example.quizandroid.viewmodel.QuizViewModelFactory
 @Composable
 fun QuizScreen(
     categoryId: Int,
-    categoryName: String,
     navController: NavHostController
 ) {
     val context = LocalContext.current
@@ -61,6 +61,9 @@ fun QuizScreen(
     val corFundo = Color(0xFFD1C4E9)
     val corTitulo = Color(0xFF311B92)
 
+    // Em QuizScreen.kt
+// (Assegure-se que 'corTitulo' está definido antes do Surface, como já está)
+
     Surface(modifier = Modifier.fillMaxSize(), color = corFundo) {
 
         // --- ESTE BLOCO 'WHEN' FOI ATUALIZADO ---
@@ -71,47 +74,62 @@ fun QuizScreen(
                     CircularProgressIndicator()
                 }
             }
+
             // 2. Estado de Erro
             uiState.error != null -> {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Text(text = uiState.error!!, color = Color.Red, fontSize = 18.sp)
                 }
             }
-            // 3. Estado de Sucesso (Quiz)
-            uiState.currentQuestion != null -> {
-                QuizContent(
-                    categoryName = categoryName,
-                    uiState = uiState,
-                    onAnswerSelected = { viewModel.selectAnswer(it) },
-                    onNextClick = { viewModel.nextQuestion() }
-                )
-            }
-            // 4. (NOVO) Estado de "uepa mas vazio"
-            // Isso previne a tela em branco!
-            !uiState.isLoading && uiState.questions.isEmpty() -> {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Text(
-                        text = "Nenhuma pergunta encontrada para esta categoria.",
-                        color = corTitulo,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center
+
+            // 3. (CORRIGIDO) Estado Padrão (Quiz ou Vazio)
+            else -> {
+                // Captura a pergunta
+                val currentQuestion = uiState.currentQuestion
+
+                // 3a. Se a pergunta existir, mostre o quiz
+                if (currentQuestion != null) {
+                    QuizContent(
+                        uiState = uiState,
+                        question = currentQuestion,
+                        onAnswerSelected = { viewModel.selectAnswer(it) },
+                        onNextClick = { viewModel.nextQuestion() }
                     )
                 }
+                // 3b. (MOVIDO PARA DENTRO) Se não há pergunta E a lista está vazia
+                //     (E corrigido 'question' para 'questions')
+                else if (uiState.questions.isEmpty()) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = "Nenhuma pergunta encontrada.",
+                            color = corTitulo,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+                // 3c. (Fallback)
+                // Se a lista não está vazia, mas a pergunta é nula
+                // (pode acontecer brevemente ao finalizar o quiz)
+                else {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator() // Mostra um loading rápido
+                    }
+                }
             }
-        }
-    }
+        } // Fim do 'when'
+    } // Fim do 'Surface'
 }
 
 // ... (O resto do arquivo QuizContent continua igual)
 
 @Composable
 fun QuizContent(
-    categoryName: String,
     uiState: QuizUiState,
+    question : com.example.quizandroid.viewmodel.QuizQuestion,
     onAnswerSelected: (String) -> Unit,
     onNextClick: () -> Unit
 ) {
-    val question = uiState.currentQuestion!!
     val corFundo = Color(0xFFD1C4E9)
     val corTitulo = Color(0xFF311B92)
     val corBotao = Color(0xFFB39DDB)
@@ -125,7 +143,7 @@ fun QuizContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Título da Categoria e Progresso
-        Text(text = categoryName, style = MaterialTheme.typography.headlineMedium, color = corTitulo)
+        question.category?.let { Text(text = it, style = MaterialTheme.typography.headlineMedium, color = corTitulo) }
         Text(text = uiState.progressText, style = MaterialTheme.typography.bodyLarge, color = corTitulo)
 
         Spacer(modifier = Modifier.height(24.dp))

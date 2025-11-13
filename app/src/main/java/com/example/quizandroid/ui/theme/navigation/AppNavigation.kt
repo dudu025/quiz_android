@@ -1,9 +1,11 @@
 package com.example.quizandroid.ui.theme.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.quizandroid.ui.theme.screens.CategoryScreen
 import com.example.quizandroid.ui.theme.screens.StartScreen
 import com.example.quizandroid.ui.theme.screens.TelaLogin
@@ -66,30 +68,41 @@ fun AppNavigation() {
         }
 
         // --- 3. BLOCO QUE FALTAVA (QUIZ) ---
-        composable(AppRoutes.QUIZ) { backStackEntry ->
-            // Extrai os argumentos da rota
-            val categoryId = backStackEntry.arguments?.getString("categoryId")?.toIntOrNull() ?: 0
-            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Quiz"
+        composable(
+            route = "quiz/{categoryId}",
+            arguments = listOf(navArgument("categoryId") { type = NavType.IntType })
+        ) { backStackEntry ->
 
-            QuizScreen(
-                categoryId = categoryId,
-                categoryName = categoryName,
-                navController = navController
-            )
-        }
+            // 1. Extrai o argumento (será Int? ou seja, nulo se não for encontrado)
+            val categoryId = backStackEntry.arguments?.getInt("categoryId")
+
+            // 2. Verifica se o ID foi recebido corretamente
+            if (categoryId != null) {
+                // 3. Se SIM, chama a QuizScreen APENAS AQUI
+                // Dentro deste 'if', o Kotlin sabe que 'categoryId' é um Int (não-nulo)
+                QuizScreen(
+                    navController = navController,
+                    categoryId = categoryId
+                )
+            } else {
+                // 4. Se NÃO (ex: erro na navegação), apenas volte para a tela anterior
+                navController.popBackStack()
+            }
 
         // --- 4. BLOCO QUE FALTAVA (FINAL DA PARTIDA) ---
-        composable(AppRoutes.FINAL) { backStackEntry ->
-            // Pega a pontuação que foi passada na rota (ex: "8-10")
-            // Substitui o hífen "-" por "/" (ex: "8/10")
-            val pontuacao = backStackEntry.arguments?.getString("pontuacao")
-                ?.replace("-", "/") ?: "0/0"
 
-            // Note que o nome da sua função é "TelaFinalDaPartida"
+        }
+        composable(
+            route = AppRoutes.FINAL,
+            arguments = listOf(navArgument("pontuacao") { type = NavType.StringType })
+        ) { backStackEntry ->
+            // Extrai a pontuação da rota
+            val pontuacao = backStackEntry.arguments?.getString("pontuacao") ?: "0/0"
+
             TelaFinalDaPartida(
                 pontuacao = pontuacao,
                 onVoltarInicioClick = {
-                    // Ao clicar, limpa tudo e volta para a tela de início
+                    // Volta para a tela START, limpando a pilha
                     navController.navigate(AppRoutes.START) {
                         popUpTo(AppRoutes.START) { inclusive = true }
                     }
@@ -98,3 +111,4 @@ fun AppNavigation() {
         }
     }
 }
+

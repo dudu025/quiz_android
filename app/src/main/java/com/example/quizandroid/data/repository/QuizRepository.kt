@@ -1,5 +1,6 @@
 package com.example.quizandroid.data.repository
 
+import android.util.Log
 import com.example.quizandroid.data.UserDao
 import com.example.quizandroid.data.local.ScoreDao
 import com.example.quizandroid.data.local.entities.Score
@@ -15,22 +16,36 @@ class QuizRepository (
 
     // --- ESTA FUNÇÃO FOI MODIFICADA ---
     suspend fun getQuestionsFromapi(categoryId: Int): List<QuestionResponse> {
-        // O 'try-catch' foi movido para o ViewModel,
-        // aqui vamos deixar o erro "explodir" se acontecer
 
+        // 1. Tenta fazer a chamada à API
         val response = apiService.getQuestions(
             amount = 10,
             category = categoryId
         )
 
-        if (response.isSuccessful && response.body() != null) {
-            // Sucesso! Retorna os resultados
-            return response.body()!!.results
-        } else {
-            // Falha na API: lança um erro que o ViewModel vai pegar
-            throw Exception("Falha na API: ${response.message()}")
+        // 2. Verifica se a chamada de REDE falhou (ex: 404, 500)
+        if (!response.isSuccessful) {
+            throw Exception("Falha de rede ao buscar perguntas: ${response.message()}")
         }
-    }
+
+        // 3. Verifica se o CORPO da resposta é nulo
+        val body = response.body()
+        if (body == null) {
+            throw Exception("API retornou um corpo de resposta nulo.")
+        }
+
+        // 4. Verifica se a API retornou um código de erro (ex: 1 = Sem resultados)
+        //    E se a lista de 'results' não é nula
+        if (body.responseCode == 0 && body.results != null) {
+            // SUCESSO! Retorna a lista de perguntas
+            return body.results
+        } else {
+            // Se a API retornou um erro (responseCode != 0) ou uma lista nula,
+            // apenas retorne uma lista vazia. Isso não é um crash,
+            // é um resultado esperado (ex: "Não há perguntas para esta categoria").
+            return emptyList()
+        }
+    } // Fim da getQuestionsFromapi
     // --- FIM DA MODIFICAÇÃO ---
 
 

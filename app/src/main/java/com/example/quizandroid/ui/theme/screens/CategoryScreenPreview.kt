@@ -1,5 +1,6 @@
 package com.example.quizandroid.ui.theme.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,47 +21,41 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.quizandroid.Category
 import com.example.quizandroid.QuizApplication
 import com.example.quizandroid.ui.theme.QuizAndroidTheme
-<<<<<<< HEAD
 import com.example.quizandroid.ui.theme.navigation.AppRoutes // Importar AppRoutes
-
-// --- 1. MAPEAMENTO DOS IDs DA API (OpenTDB) ---
-val categoryMap = mapOf(
-    "Geografia" to 22,
-    "Filmes" to 11,
-    "História" to 23,
-    "Ciência" to 17,
-    "Esportes" to 21,
-    "Humor" to 9 // "Humor" não existe na API, usei "Conhecimentos Gerais" (ID 9)
-)
-=======
 import com.example.quizandroid.viewmodel.ProfileViewModel
 import com.example.quizandroid.viewmodel.ProfileViewModelFactory
->>>>>>> 0559b685326594f6cd0a8883728baf4f6fa40d23
+
+
+
 
 @Composable
 fun CategoryScreen(
     navController: NavHostController
 ) {
+    val categories = listOf(
+        Category("Geografia", 22),
+        Category("Humor", 20), // (Não há categoria "Humor", talvez "Mythology" (20) ou "Celebrities" (26)?)
+        Category("Filmes", 11),
+        Category("História", 23),
+        Category("Ciência", 17),
+        Category("Esportes", 21)
+    )
     // corzinha dnv
     val corFundo = Color(0xFFD1C4E9)
     val corBotaoCategoria = Color(0xFFB39DDB)
     val corTextoTitulo = Color(0xFF311B92)
     val corTextoBotao = Color.White
-<<<<<<< HEAD
 
     // Pega as chaves do mapa para os botões
-    val categories = categoryMap.keys.toList()
-=======
     val context = LocalContext.current
     val application = context.applicationContext as QuizApplication
     val viewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModelFactory(application.quizRepository)
     )
     val uiState by viewModel.uiState.collectAsState()
-    val categories = listOf("Geografia", "Humor", "Filmes", "História", "Ciência", "Esportes")
->>>>>>> 0559b685326594f6cd0a8883728baf4f6fa40d23
 
     Column(
         modifier = Modifier
@@ -82,18 +77,11 @@ fun CategoryScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(categories) { categoryName ->
+            items(categories) { category ->
                 Button(
                     onClick = {
                         // --- 2. LÓGICA DE NAVEGAÇÃO ---
-                        val categoryId = categoryMap[categoryName] ?: 9 // Pega o ID
-
-                        // Navega para a tela do Quiz
-                        navController.navigate(
-                            AppRoutes.QUIZ
-                                .replace("{categoryId}", categoryId.toString())
-                                .replace("{categoryName}", categoryName)
-                        )
+                       navController.navigate("quiz/${category.id}")
                     },
 
                     modifier = Modifier
@@ -106,7 +94,7 @@ fun CategoryScreen(
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                 ) {
                     Text(
-                        text = categoryName,
+                        text = category.name,
                         modifier = Modifier.padding(12.dp),
                         fontSize = 16.sp,
                         color = corTextoBotao,
