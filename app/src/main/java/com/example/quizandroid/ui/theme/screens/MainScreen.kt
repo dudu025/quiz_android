@@ -88,19 +88,27 @@ fun MainScreen() {
 
 
             composable(AppRoutes.QUIZ) { backStackEntry ->
-                val categoryId = backStackEntry.arguments?.getString("categoryId")?.toIntOrNull() ?: 0
-                val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Quiz"
-                QuizScreen(
+                // Extrai o ID da categoria da rota
+                val categoryId =
+                    backStackEntry.arguments?.getString("categoryId")?.toIntOrNull() ?: 0
+
+                // Chama sua tela de Quiz
+                QuizScreen( //
                     categoryId = categoryId,
-                    categoryName = categoryName,
                     navController = navController
-                ) }
+                )
+            }
+
+            // Rota para a Tela de Resultado
             composable(AppRoutes.FINAL) { backStackEntry ->
+                // Extrai a pontuação da rota
                 val score = backStackEntry.arguments?.getString("score") ?: "0/0"
+
+                // Chama sua tela de Fim de Jogo
                 TelaFinalDaPartida( //
                     pontuacao = score,
                     onVoltarInicioClick = {
-                        // Volta para a tela inicial e limpa a pilha
+                        // Ao clicar em "Voltar", limpa a pilha e volta para a tela Start
                         navController.popBackStack(AppRoutes.START, false)
                     }
                 )

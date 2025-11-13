@@ -2,91 +2,85 @@ package com.example.quizandroid.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.mutableStateOf
 import com.example.quizandroid.data.local.entities.User
 import com.example.quizandroid.data.repository.QuizRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update // Verifique se esta importação existe
 import kotlinx.coroutines.launch
+
+// 1. Definição do UiState para a tela de Login
+data class UserUiState(
+    val isLoading: Boolean = false,
+    val mensagem: String = "",
+    val loginSucesso: Boolean = false // Sinal para a UI navegar
+)
 
 class UserViewModel(private val repository: QuizRepository) : ViewModel() {
 
-    // Mensagens de feedback (login, erros, etc.)
-    val mensagem = mutableStateOf("")
-
-    // Usuário logado atualmente (compartilhado entre as telas)
-    private val _usuarioLogado = MutableStateFlow<User?>(null)
-    val usuarioLogado = _usuarioLogado.asStateFlow()
+    // 2. Substituir o 'mutableStateOf' pelo 'StateFlow'
+    private val _uiState = MutableStateFlow(UserUiState())
+    val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
 
     // -------------------- LOGIN --------------------
-    fun login(email: String, senha: String, onLoginSuccess: () -> Unit) {
+    // 3. A função 'login' agora atualiza o UiState e não recebe mais o 'onLoginSuccess'
+    fun login(email: String, senha: String) {
+        _uiState.update { it.copy(isLoading = true, mensagem = "") } // Limpa a msg e mostra loading
+        val emailNormalizado = email.trim().lowercase()
+
         viewModelScope.launch {
-            val user = repository.login(email, senha)
+            val user = repository.login(emailNormalizado, senha)
             if (user != null) {
                 repository.setUserLoggedIn(user.email, true)
-                _usuarioLogado.emit(user)
-                mensagem.value = "Login bem-sucedido!"
-                onLoginSuccess()
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        mensagem = "Login bem-sucedido!",
+                        loginSucesso = true // Sinaliza sucesso para a UI
+                    )
+                }
             } else {
-                mensagem.value = "Usuário ou senha incorretos."
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        mensagem = "Usuário ou senha incorretos."
+                    )
+                }
             }
         }
     }
 
     // -------------------- CRIAR USUÁRIO --------------------
+    // 4. A função 'criarUsuario' também atualiza o UiState
     fun criarUsuario(nome: String, email: String, senha: String) {
+        _uiState.update { it.copy(isLoading = true, mensagem = "") }
+        val emailNormalizado = email.trim().lowercase()
+
         viewModelScope.launch {
-            val existente = repository.getUserByEmail(email)
+            val existente = repository.getUserByEmail(emailNormalizado)
             if (existente == null) {
-                val novoUser = User(nome = nome, email = email, senha = senha)
+                // Pega o campo 'isAdmin' da entidade User.kt
+                val novoUser = User(nome = nome, email = emailNormalizado, senha = senha, isAdmin = false)
                 repository.insertUser(novoUser)
-                mensagem.value = "Conta criada com sucesso!"
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        mensagem = "Conta criada com sucesso!"
+                    )
+                }
             } else {
-                mensagem.value = "Email já cadastrado."
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        mensagem = "Email já cadastrado."
+                    )
+                }
             }
         }
     }
 
-    // -------------------- CARREGAR USUÁRIO LOGADO --------------------
-    fun carregarUsuarioLogado() {
-        viewModelScope.launch {
-            val usuario = repository.getUserLogado() // Método que você deve ter no seu repositório
-            _usuarioLogado.emit(usuario)
-        }
-    }
-
-    // -------------------- ATUALIZAR USUÁRIO --------------------
-    fun atualizarUsuario(nome: String, email: String, senha: String) {
-        viewModelScope.launch {
-            _usuarioLogado.value?.let { usuarioAtual ->
-                val usuarioAtualizado = usuarioAtual.copy(
-                    nome = nome,
-                    email = email,
-                    senha = senha
-                )
-                repository.updateUser(usuarioAtualizado)
-                _usuarioLogado.emit(usuarioAtualizado)
-                mensagem.value = "Perfil atualizado com sucesso!"
-            }
-        }
-    }
-
-    // -------------------- DELETAR USUÁRIO --------------------
-    fun deletarUsuarioLogado() {
-        viewModelScope.launch {
-            _usuarioLogado.value?.let {
-                repository.deleteUser(it)
-                _usuarioLogado.emit(null)
-                mensagem.value = "Usuário excluído com sucesso!"
-            }
-        }
-    }
-
-    // -------------------- DESLOGAR --------------------
-    fun deslogarUsuario() {
-        viewModelScope.launch {
-            _usuarioLogado.emit(null)
-            mensagem.value = "Usuário deslogado."
-        }
-    }
+    // 5. FUNÇÕES DUPLICADAS REMOVIDAS
+    // (As funções carregarUsuarioLogado, atualizarUsuario, etc.
+    //  foram removidas daqui pois pertencem ao ProfileViewModel)
 }

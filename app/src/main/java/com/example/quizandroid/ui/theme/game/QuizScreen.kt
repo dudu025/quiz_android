@@ -28,7 +28,6 @@ import com.example.quizandroid.viewmodel.QuizViewModelFactory
 @Composable
 fun QuizScreen(
     categoryId: Int,
-    categoryName: String,
     navController: NavHostController
 ) {
     val context = LocalContext.current

@@ -7,6 +7,7 @@ import com.example.quizandroid.data.local.entities.Score
 import com.example.quizandroid.data.local.entities.User
 import com.example.quizandroid.data.remote.OpenTdbApiService
 import com.example.quizandroid.data.remote.dto.QuestionResponse
+import kotlinx.coroutines.flow.Flow
 
 class QuizRepository (
     private val apiService: OpenTdbApiService,
@@ -89,12 +90,15 @@ class QuizRepository (
         scoreDao.insertScore(score)
     }
 
-    // TODO: Mudar no DAO para usar Flow<List<Score>>, como pede o PDF
-    suspend fun getAllScores(): List<Score> {
+    fun getAllScores(): Flow<List<Score>> {
         return scoreDao.getAllScores()
     }
 
     suspend fun deleteAllScores() {
         scoreDao.deleteAll()
+    }
+
+    suspend fun deleteScore(score: Score) {
+        scoreDao.deleteScore(score)
     }
 }

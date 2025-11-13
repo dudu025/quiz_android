@@ -14,14 +14,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.quizandroid.QuizApplication
+import com.example.quizandroid.viewmodel.UserUiState // 1. Importar o novo UiState
 import com.example.quizandroid.viewmodel.UserViewModel
 import com.example.quizandroid.viewmodel.UserViewModelFactory
-import com.example.quizandroid.QuizApplication
-import com.example.quizandroid.data.repository.QuizRepository
 
 @Composable
 fun TelaLogin(
-    onLoginSucesso: () -> Unit = {} // chamada quando login for bem-sucedido
+    onLoginSucesso: () -> Unit = {}
 ) {
     val backgroundRoxo = Color(0xFFD1C4E9)
     val context = LocalContext.current
@@ -29,18 +29,39 @@ fun TelaLogin(
     val quizRepository = application.quizRepository
     val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(quizRepository))
 
+    // 2. Coletar o novo UiState
+    val uiState by viewModel.uiState.collectAsState()
+
     var emailLogin by remember { mutableStateOf("") }
     var senhaLogin by remember { mutableStateOf("") }
     var nomeCadastro by remember { mutableStateOf("") }
     var emailCadastro by remember { mutableStateOf("") }
     var senhaCadastro by remember { mutableStateOf("") }
 
-    val mensagem by viewModel.mensagem
+    // 3. Remover o 'val mensagem' antigo
+    // val mensagem by viewModel.mensagem // <-- REMOVIDO
 
     var mostrarPopup by remember { mutableStateOf(false) }
     var textoPopup by remember { mutableStateOf("") }
 
+    // 4. (NOVO) LaunchedEffect para reagir ao 'loginSucesso'
+    LaunchedEffect(uiState.loginSucesso) {
+        if (uiState.loginSucesso) {
+            Toast.makeText(context, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
+            onLoginSucesso() // Chama a navegação
+        }
+    }
+
+    // 5. (NOVO) LaunchedEffect para reagir à 'mensagem' (para o popup)
+    LaunchedEffect(uiState.mensagem) {
+        if (uiState.mensagem.isNotBlank()) {
+            textoPopup = uiState.mensagem
+            mostrarPopup = true
+        }
+    }
+
     Column(
+        // ... (o Column continua o mesmo)
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundRoxo)
@@ -48,22 +69,21 @@ fun TelaLogin(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
+        // ... (O Text "QUIZ" e "Criar Conta" continuam os mesmos) ...
         Text(
             text = "QUIZ",
             style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center,
             color = Color(0xFF4A148C)
         )
-
         Spacer(modifier = Modifier.height(24.dp))
-
-        // --- Criar Conta ---
         Text(
             text = "Criar Conta",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF4A148C)
         )
 
+        // ... (Os OutlinedTextFields continuam os mesmos) ...
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = nomeCadastro,
@@ -71,7 +91,6 @@ fun TelaLogin(
             label = { Text("Nome") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = emailCadastro,
@@ -79,7 +98,6 @@ fun TelaLogin(
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = senhaCadastro,
@@ -96,25 +114,25 @@ fun TelaLogin(
                     textoPopup = "Preencha os campos necessários"
                     mostrarPopup = true
                 } else {
+                    // 6. Chamada atualizada
                     viewModel.criarUsuario(nomeCadastro, emailCadastro, senhaCadastro)
-                    textoPopup = "Conta criada com sucesso!"
-                    mostrarPopup = true
+                    // (O popup de sucesso será ativado pelo LaunchedEffect)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading // 7. Desabilita o botão se estiver carregando
         ) {
             Text("Criar Conta")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // --- Login ---
+        // ... (O Text "Login" e os OutlinedTextFields continuam os mesmos) ...
         Text(
             text = "Login",
             style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF4A148C)
         )
-
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = emailLogin,
@@ -122,7 +140,6 @@ fun TelaLogin(
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = senhaLogin,
@@ -139,27 +156,39 @@ fun TelaLogin(
                     textoPopup = "Preencha os campos necessários"
                     mostrarPopup = true
                 } else {
-                    viewModel.login(emailLogin, senhaLogin) {
-                        Toast.makeText(context, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
-                        onLoginSucesso() // 🔹 chama a navegação definida no AppNavigation
-                    }
+                    // 8. Chamada do ViewModel simplificada
+                    viewModel.login(emailLogin, senhaLogin)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading // 9. Desabilita o botão se estiver carregando
         ) {
             Text("Entrar")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
-        Text(text = mensagem, color = Color.Black, textAlign = TextAlign.Center)
+
+        // 10. Texto de mensagem agora usa o uiState
+        //    (O popup já mostra a mensagem, então esta linha é opcional,
+        //     mas se você quiser manter...)
+        // Text(text = uiState.mensagem, color = Color.Black, textAlign = TextAlign.Center)
     }
 
     // 🔹 Popup (AlertDialog)
+    // (Esta lógica não precisa de mudança)
     if (mostrarPopup) {
         AlertDialog(
-            onDismissRequest = { mostrarPopup = false },
+            onDismissRequest = {
+                mostrarPopup = false
+                // Limpa a mensagem no ViewModel se o popup for fechado
+                // (Esta parte é bônus, mas é boa prática)
+                // viewModel.clearMessage()
+            },
             confirmButton = {
-                TextButton(onClick = { mostrarPopup = false }) {
+                TextButton(onClick = {
+                    mostrarPopup = false
+                    // viewModel.clearMessage()
+                }) {
                     Text("OK")
                 }
             },
