@@ -36,9 +36,16 @@ fun TelaPerfil(navController: NavHostController) {
 
     val backgroundRoxo = Color(0xFFD1C4E9)
 
-    // ✅ NÃO precisa mais chamar carregarUsuarioLogado() manualmente
-    // O ViewModel já faz isso no init {}
+    // ✅ Recarrega dados sempre que a tela for visível, evitando cache de dados desatualizados
+    LaunchedEffect(navController.currentBackStackEntryFlow) {
+        navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            if (backStackEntry.destination.route == AppRoutes.PROFILE) {
+                viewModel.loadUsuarioLogado() // Força recarregar o usuário logado
+            }
+        }
+    }
 
+    // 🔒 Se o logout for bem-sucedido, volta pra tela de login
     LaunchedEffect(uiState.logoutSucesso) {
         if (uiState.logoutSucesso) {
             navController.navigate(AppRoutes.LOGIN) {
@@ -106,7 +113,9 @@ fun TelaPerfil(navController: NavHostController) {
             onClick = { viewModel.deslogarUsuario() },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
         ) {
             Text("Sair", color = Color.White)
         }
@@ -117,7 +126,9 @@ fun TelaPerfil(navController: NavHostController) {
             onClick = { viewModel.deletarUsuarioLogado() },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
         ) {
             Text("Excluir", color = Color.White)
         }

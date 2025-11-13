@@ -26,7 +26,7 @@ class ProfileViewModel (private val repository: QuizRepository) : ViewModel() {
         loadUsuarioLogado()
     }
 
-    private fun loadUsuarioLogado(){
+    public fun loadUsuarioLogado(){
         viewModelScope.launch{
             _uiState.update { it.copy(isLoading = true) }
             val user = repository.getUserLogado()
