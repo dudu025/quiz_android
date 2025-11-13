@@ -14,12 +14,15 @@ import com.example.quizandroid.ui.theme.screens.TelaEditarPerfil
 import com.example.quizandroid.ui.theme.game.QuizScreen
 // 1. ADICIONAR O IMPORT DA TELA FINAL
 import com.example.quizandroid.ui.theme.game.TelaFinalDaPartida
+import com.example.quizandroid.ui.theme.screens.MainScreen
 
 // Rotas do App
 object AppRoutes {
     const val LOGIN = "login"
+    const val MAIN = "main"
     const val START = "start"
     const val CATEGORY = "category"
+    const val HISTORY = "history"
     const val PROFILE = "profile"
     const val EDITAR_PERFIL = "editarPerfil"
     const val QUIZ = "quiz/{categoryId}/{categoryName}"
@@ -40,75 +43,16 @@ fun AppNavigation() {
         composable(AppRoutes.LOGIN) {
             TelaLogin(
                 onLoginSucesso = {
-                    navController.navigate(AppRoutes.START) {
+                    navController.navigate(AppRoutes.MAIN) {
                         popUpTo(AppRoutes.LOGIN) { inclusive = true }
                     }
                 }
             )
         }
-
-        // Rota para StartScreen (Seu código está correto)
-        composable(AppRoutes.START) {
-            StartScreen(navController = navController)
+        composable(AppRoutes.MAIN) {
+            MainScreen()
         }
 
-        // Rota para CategoryScreen (Seu código está correto)
-        composable(AppRoutes.CATEGORY) {
-            CategoryScreen(navController = navController)
-        }
-
-        // Rota para TelaPerfil (Seu código está correto)
-        composable(AppRoutes.PROFILE) {
-            TelaPerfil(navController = navController)
-        }
-
-        // Rota para TelaEditarPerfil (Seu código está correto)
-        composable(AppRoutes.EDITAR_PERFIL) {
-            TelaEditarPerfil(navController = navController)
-        }
-
-        // --- 3. BLOCO QUE FALTAVA (QUIZ) ---
-        composable(
-            route = "quiz/{categoryId}",
-            arguments = listOf(navArgument("categoryId") { type = NavType.IntType })
-        ) { backStackEntry ->
-
-            // 1. Extrai o argumento (será Int? ou seja, nulo se não for encontrado)
-            val categoryId = backStackEntry.arguments?.getInt("categoryId")
-
-            // 2. Verifica se o ID foi recebido corretamente
-            if (categoryId != null) {
-                // 3. Se SIM, chama a QuizScreen APENAS AQUI
-                // Dentro deste 'if', o Kotlin sabe que 'categoryId' é um Int (não-nulo)
-                QuizScreen(
-                    navController = navController,
-                    categoryId = categoryId
-                )
-            } else {
-                // 4. Se NÃO (ex: erro na navegação), apenas volte para a tela anterior
-                navController.popBackStack()
-            }
-
-        // --- 4. BLOCO QUE FALTAVA (FINAL DA PARTIDA) ---
-
-        }
-        composable(
-            route = AppRoutes.FINAL,
-            arguments = listOf(navArgument("pontuacao") { type = NavType.StringType })
-        ) { backStackEntry ->
-            // Extrai a pontuação da rota
-            val pontuacao = backStackEntry.arguments?.getString("pontuacao") ?: "0/0"
-
-            TelaFinalDaPartida(
-                pontuacao = pontuacao,
-                onVoltarInicioClick = {
-                    // Volta para a tela START, limpando a pilha
-                    navController.navigate(AppRoutes.START) {
-                        popUpTo(AppRoutes.START) { inclusive = true }
-                    }
-                }
-            )
-        }
     }
 }
 
