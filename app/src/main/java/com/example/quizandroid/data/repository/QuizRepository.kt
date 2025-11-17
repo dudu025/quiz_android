@@ -16,12 +16,12 @@ class QuizRepository (
 ) {
 
     // --- ESTA FUNÇÃO FOI MODIFICADA ---
-    suspend fun getQuestionsFromapi(categoryId: Int): List<QuestionResponse>? {
+    suspend fun getQuestionsFromapi(category: Int): List<QuestionResponse>? {
         // Envolve a chamada de rede em um try-catch (Requisito 4 do PDF)
         return try {
             val response = apiService.getQuestions(
                 amount = 10,
-                category = categoryId
+                category = category
             )
             if (response.isSuccessful && response.body() != null) {
                 response.body()!!.results

@@ -172,7 +172,7 @@ fun QuizContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Opções de Resposta
-        question.options.forEach { option ->
+        question.options?.forEach { option ->
             val isSelected = uiState.isAnswerSelected && uiState.selectedAnswer == option
 
             // Define a cor com base na seleção e correção
@@ -185,7 +185,7 @@ fun QuizContent(
             }
 
             Button(
-                onClick = { onAnswerSelected(option) },
+                onClick = { option?.let { onAnswerSelected(it) } },
                 enabled = !uiState.isAnswerSelected, // Desativa botões após responder
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,7 +195,7 @@ fun QuizContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = corFundoBotao)
             ) {
-                Text(text = option, color = corTextoBotao, fontSize = 16.sp)
+                option?.let { Text(text = it, color = corTextoBotao, fontSize = 16.sp) }
             }
         }
 

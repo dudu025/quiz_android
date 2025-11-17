@@ -11,7 +11,7 @@ import retrofit2.http.Query
 
 
 interface OpenTdbApiService {
-    @GET("api.php?")
+    @GET("api.php")
     suspend fun getQuestions(
         @Query("amount") amount: Int = 10,
         @Query("category") category: Int = 21,

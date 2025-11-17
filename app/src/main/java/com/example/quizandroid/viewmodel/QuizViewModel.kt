@@ -17,7 +17,7 @@ import org.jsoup.Jsoup
 // 1. Define um modelo de Pergunta "limpo" para a tela
 data class QuizQuestion(
     val text: String,
-    val options: List<String>,
+    val options: List<String?>?,
     val category: String?,
     val correctAnswer: String
 )
@@ -170,23 +170,30 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
 
 // Função helper para "limpar" a pergunta da API
 private fun QuestionResponse.toQuizQuestion(): QuizQuestion {
-    // A API manda a resposta correta e as erradas em listas separadas
-    // Vamos juntar, embaralhar e limpar o texto (HTML)
-    val options = (this.incorrectAnswers?.plus(this.correctAnswer))?.shuffled()
 
-    if (options != null) {
-        return QuizQuestion(
-            text = Html.fromHtml(this.question, Html.FROM_HTML_MODE_LEGACY).toString(),
-            options = options.mapNotNull {
-                Html.fromHtml(it, Html.FROM_HTML_MODE_LEGACY).toString()
-            },
-            correctAnswer = Html.fromHtml(this.correctAnswer, Html.FROM_HTML_MODE_LEGACY)
-                .toString(),
-            category = category
-        )
-    }
-    return TODO("Provide the return value")
+    // --- CORREÇÃO DE NULOS ---
+    // Usamos o '?: ""' (Elvis Operator) para garantir que NUNCA passaremos 'null' para o Jsoup.
+
+    val cleanCorrect = Jsoup.parse(this.correctAnswer ?: "").text()
+    val cleanIncorrects = this.incorrectAnswers?.map { Jsoup.parse(it ?: "").text() }
+
+    val options = (cleanIncorrects?.plus(cleanCorrect))?.shuffled()
+
+    return QuizQuestion(
+        // O nome do parâmetro na data class é 'text'
+        text = Jsoup.parse(this.question ?: "").text(),
+
+        // O nome do parâmetro é 'options'
+        options = options,
+
+        // O nome do parâmetro é 'category'
+        category = Jsoup.parse(this.category ?: "").text(),
+
+        // O nome do parâmetro é 'correctAnswer'
+        correctAnswer = cleanCorrect
+    )
 }
+
 
 // Factory para o QuizViewModel (igual às suas outras factories)
 class QuizViewModelFactory(

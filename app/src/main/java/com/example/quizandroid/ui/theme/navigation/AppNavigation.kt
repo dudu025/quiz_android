@@ -15,6 +15,7 @@ import com.example.quizandroid.ui.theme.game.QuizScreen
 // 1. ADICIONAR O IMPORT DA TELA FINAL
 import com.example.quizandroid.ui.theme.game.TelaFinalDaPartida
 import com.example.quizandroid.ui.theme.screens.MainScreen
+import com.example.quizandroid.ui.theme.screens.TelaRegistro
 
 // Rotas do App
 object AppRoutes {
@@ -24,6 +25,7 @@ object AppRoutes {
     const val CATEGORY = "category"
     const val HISTORY = "history"
     const val PROFILE = "profile"
+    const val REGISTER = "register"
     const val EDITAR_PERFIL = "editarPerfil"
     const val QUIZ = "quiz/{categoryId}/{categoryName}"
     // 2. ADICIONAR A ROTA FINAL
@@ -46,9 +48,22 @@ fun AppNavigation() {
                     navController.navigate(AppRoutes.MAIN) {
                         popUpTo(AppRoutes.LOGIN) { inclusive = true }
                     }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(AppRoutes.REGISTER)
                 }
             )
         }
+        composable(AppRoutes.REGISTER) {
+            TelaRegistro(onRegistroSucesso = {
+                navController.popBackStack()
+            },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(AppRoutes.MAIN) {
             MainScreen(mainNavController = navController)
         }
