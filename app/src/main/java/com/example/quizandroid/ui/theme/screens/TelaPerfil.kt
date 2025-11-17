@@ -26,7 +26,10 @@ import com.example.quizandroid.viewmodel.ProfileViewModel
 import com.example.quizandroid.viewmodel.ProfileViewModelFactory
 
 @Composable
-fun TelaPerfil(navController: NavHostController) {
+fun TelaPerfil(
+    mainNavController: NavHostController,
+    innerNavController: NavHostController
+) {
     val context = LocalContext.current
     val application = context.applicationContext as QuizApplication
     val viewModel: ProfileViewModel = viewModel(
@@ -41,7 +44,7 @@ fun TelaPerfil(navController: NavHostController) {
 
     LaunchedEffect(uiState.logoutSucesso) {
         if (uiState.logoutSucesso) {
-            navController.navigate(AppRoutes.LOGIN) {
+            mainNavController.navigate(AppRoutes.LOGIN) {
                 popUpTo(0)
             }
         }
@@ -92,7 +95,7 @@ fun TelaPerfil(navController: NavHostController) {
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
-            onClick = { navController.navigate(AppRoutes.EDITAR_PERFIL) },
+            onClick = { innerNavController.navigate(AppRoutes.EDITAR_PERFIL) },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
             modifier = Modifier.fillMaxWidth().height(50.dp)
@@ -125,7 +128,7 @@ fun TelaPerfil(navController: NavHostController) {
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = { innerNavController.popBackStack() },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A)),
             modifier = Modifier

@@ -50,7 +50,7 @@ fun AppNavigation() {
             )
         }
         composable(AppRoutes.MAIN) {
-            MainScreen()
+            MainScreen(mainNavController = navController)
         }
 
     }

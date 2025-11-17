@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import com.example.quizandroid.QuizApplication
 import com.example.quizandroid.data.remote.OpenTdbApiService
 import com.example.quizandroid.data.repository.QuizRepository
+import com.example.quizandroid.ui.theme.navigation.AppRoutes
 import com.example.quizandroid.viewmodel.ProfileViewModel
 import com.example.quizandroid.viewmodel.ProfileViewModelFactory
 import com.example.quizandroid.viewmodel.UserViewModel
@@ -34,8 +35,8 @@ fun TelaEditarPerfil(navController: NavHostController) {
     val uiState by viewModel.uiState.collectAsState()
 
 
-    var nome by remember { mutableStateOf(uiState.nome) }
-    var email by remember { mutableStateOf(uiState.email) }
+    var nome by remember(uiState.nome) { mutableStateOf(uiState.nome) }
+    var email by remember(uiState.email) { mutableStateOf(uiState.email) }
     var senha by remember { mutableStateOf("") }
 
     val backgroundRoxo = Color(0xFFD1C4E9)
@@ -86,7 +87,7 @@ fun TelaEditarPerfil(navController: NavHostController) {
             Button(
                 onClick = {
                     viewModel.SalvarPerfil(nome, email, senha)
-                    navController.navigate("perfil")
+                    navController.navigate(AppRoutes.PROFILE)
                 },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth().height(50.dp)

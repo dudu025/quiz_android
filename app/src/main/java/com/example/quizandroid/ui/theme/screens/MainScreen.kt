@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -32,14 +33,16 @@ sealed class BottomBarScreen(
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    mainNavController: NavHostController
+) {
     // Este é o NavController INTERNO (para as abas)
-    val navController = rememberNavController()
+    val innerNavController = rememberNavController()
 
     Scaffold(
         // A Barra de Navegação Inferior
         bottomBar = {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val navBackStackEntry by innerNavController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
             NavigationBar {
@@ -54,8 +57,8 @@ fun MainScreen() {
                         icon = { Icon(screen.icon, contentDescription = screen.title) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
+                            innerNavController.navigate(screen.route) {
+                                popUpTo(innerNavController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -71,18 +74,18 @@ fun MainScreen() {
 
         // O "Navegador Interno" com as telas do app
         NavHost(
-            navController = navController,
+            navController = innerNavController,
             startDestination = AppRoutes.START,
             modifier = Modifier.padding(innerPadding) // Aplica o padding
         ) {
             // Rotas das Abas
-            composable(AppRoutes.START) { StartScreen(navController = navController) }
-            composable(AppRoutes.HISTORY) { TelaHistorico(onVoltarClick = { navController.popBackStack() }) }
-            composable(AppRoutes.PROFILE) { TelaPerfil(navController = navController) }
+            composable(AppRoutes.START) { StartScreen(navController = innerNavController) }
+            composable(AppRoutes.HISTORY) { TelaHistorico(onVoltarClick = { innerNavController.popBackStack() }) }
+            composable(AppRoutes.PROFILE) { TelaPerfil(innerNavController = innerNavController, mainNavController =  mainNavController) }
 
             // Rotas "internas" (fora das abas)
-            composable(AppRoutes.CATEGORY) { CategoryScreen(navController = navController) }
-            composable(AppRoutes.EDITAR_PERFIL) { TelaEditarPerfil(navController = navController) }
+            composable(AppRoutes.CATEGORY) { CategoryScreen(navController = innerNavController) }
+            composable(AppRoutes.EDITAR_PERFIL) { TelaEditarPerfil(navController = innerNavController) }
 
             // --- ESTAS SÃO AS ROTAS QUE ESTAVAM FALTANDO ---
 
@@ -92,7 +95,7 @@ fun MainScreen() {
 
                 QuizScreen(
                     categoryId = categoryId,
-                    navController = navController
+                    navController = innerNavController
                 )
             }
 
@@ -103,7 +106,7 @@ fun MainScreen() {
                 TelaFinalDaPartida(
                     pontuacao = score,
                     onVoltarInicioClick = {
-                        navController.popBackStack(AppRoutes.START, false)
+                        innerNavController.popBackStack(AppRoutes.START, false)
                     }
                 )
             }
