@@ -81,7 +81,7 @@ fun CategoryScreen(
                 Button(
                     onClick = {
                         // --- 2. LÓGICA DE NAVEGAÇÃO ---
-                        navController.navigate("quiz/${category.id}")
+                        navController.navigate(AppRoutes.QUIZ.replace("{categoryId}", category.toString()))
                     },
 
                     modifier = Modifier

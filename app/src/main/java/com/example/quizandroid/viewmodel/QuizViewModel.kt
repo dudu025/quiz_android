@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jsoup.Jsoup
 
 // 1. Define um modelo de Pergunta "limpo" para a tela
 data class QuizQuestion(
@@ -59,11 +60,18 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
                 // Busca as perguntas do seu repositório
                 val questionsFromApi = repository.getQuestionsFromapi(categoryId)
                 // Converte e limpa as perguntas (API manda texto em HTML)
-                val cleanQuestions = questionsFromApi.map { it.toQuizQuestion() }
+                val cleanQuestions = questionsFromApi?.map { it.toQuizQuestion() }
+                val cleanedQuestions = questionsFromApi?.map { q ->
+                    q.copy(
+                        question = Jsoup.parse(q.question).text(),
+                        correctAnswer = Jsoup.parse(q.correctAnswer).text(),
+                        incorrectAnswers = q.incorrectAnswers?.map { Jsoup.parse(it).text() }
+                    )
+                }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        questions = cleanQuestions,
+                        questions = cleanQuestions ?: emptyList(),
                         currentQuestionIndex = 0,
                         score = 0,
                         isQuizFinished = false

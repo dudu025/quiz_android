@@ -1,6 +1,5 @@
 package com.example.quizandroid.ui.theme.screens
 
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -18,11 +17,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.quizandroid.ui.theme.game.QuizScreen
-import com.example.quizandroid.ui.theme.game.TelaFinalDaPartida
-import com.example.quizandroid.ui.theme.navigation.AppRoutes
-import com.example.quizandroid.ui.theme.screens.* // Importe TODAS as suas telas
+import com.example.quizandroid.ui.theme.game.TelaFinalDaPartida // Importe a tela de Fim de Jogo
+import com.example.quizandroid.ui.theme.navigation.AppRoutes // Importe suas Rotas
 
-// 1. Definição das abas da BottomNavBar
+// Definição das abas da BottomNavBar
 sealed class BottomBarScreen(
     val route: String,
     val title: String,
@@ -35,11 +33,11 @@ sealed class BottomBarScreen(
 
 @Composable
 fun MainScreen() {
-    // 2. Este é o NavController INTERNO (para as abas)
+    // Este é o NavController INTERNO (para as abas)
     val navController = rememberNavController()
 
     Scaffold(
-        // 3. A Barra de Navegação Inferior
+        // A Barra de Navegação Inferior
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
@@ -68,13 +66,13 @@ fun MainScreen() {
                 }
             }
         }
-        // 4. A lambda de CONTEÚDO do Scaffold
+        // A lambda de CONTEÚDO do Scaffold
     ) { innerPadding ->
 
-        // 5. O "Navegador Interno" com as telas do app
+        // O "Navegador Interno" com as telas do app
         NavHost(
             navController = navController,
-            startDestination = AppRoutes.START, // A aba inicial
+            startDestination = AppRoutes.START,
             modifier = Modifier.padding(innerPadding) // Aplica o padding
         ) {
             // Rotas das Abas
@@ -86,14 +84,13 @@ fun MainScreen() {
             composable(AppRoutes.CATEGORY) { CategoryScreen(navController = navController) }
             composable(AppRoutes.EDITAR_PERFIL) { TelaEditarPerfil(navController = navController) }
 
+            // --- ESTAS SÃO AS ROTAS QUE ESTAVAM FALTANDO ---
 
+            // Rota para a Tela de Jogo
             composable(AppRoutes.QUIZ) { backStackEntry ->
-                // Extrai o ID da categoria da rota
-                val categoryId =
-                    backStackEntry.arguments?.getString("categoryId")?.toIntOrNull() ?: 0
+                val categoryId = backStackEntry.arguments?.getString("categoryId")?.toIntOrNull() ?: 0
 
-                // Chama sua tela de Quiz
-                QuizScreen( //
+                QuizScreen(
                     categoryId = categoryId,
                     navController = navController
                 )
@@ -101,14 +98,11 @@ fun MainScreen() {
 
             // Rota para a Tela de Resultado
             composable(AppRoutes.FINAL) { backStackEntry ->
-                // Extrai a pontuação da rota
                 val score = backStackEntry.arguments?.getString("score") ?: "0/0"
 
-                // Chama sua tela de Fim de Jogo
-                TelaFinalDaPartida( //
+                TelaFinalDaPartida(
                     pontuacao = score,
                     onVoltarInicioClick = {
-                        // Ao clicar em "Voltar", limpa a pilha e volta para a tela Start
                         navController.popBackStack(AppRoutes.START, false)
                     }
                 )

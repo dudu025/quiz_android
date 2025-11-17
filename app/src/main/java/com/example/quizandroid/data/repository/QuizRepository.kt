@@ -16,38 +16,23 @@ class QuizRepository (
 ) {
 
     // --- ESTA FUNÇÃO FOI MODIFICADA ---
-    suspend fun getQuestionsFromapi(categoryId: Int): List<QuestionResponse> {
-
-        // 1. Tenta fazer a chamada à API
-        val response = apiService.getQuestions(
-            amount = 10,
-            category = categoryId
-        )
-
-        // 2. Verifica se a chamada de REDE falhou (ex: 404, 500)
-        if (!response.isSuccessful) {
-            throw Exception("Falha de rede ao buscar perguntas: ${response.message()}")
+    suspend fun getQuestionsFromapi(categoryId: Int): List<QuestionResponse>? {
+        // Envolve a chamada de rede em um try-catch (Requisito 4 do PDF)
+        return try {
+            val response = apiService.getQuestions(
+                amount = 10,
+                category = categoryId
+            )
+            if (response.isSuccessful && response.body() != null) {
+                response.body()!!.results
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) { // Captura erros (ex: sem internet)
+            println("Erro ao buscar perguntas : ${e.message}")
+            emptyList() // Retorna uma lista vazia em vez de crashar
         }
-
-        // 3. Verifica se o CORPO da resposta é nulo
-        val body = response.body()
-        if (body == null) {
-            throw Exception("API retornou um corpo de resposta nulo.")
-        }
-
-        // 4. Verifica se a API retornou um código de erro (ex: 1 = Sem resultados)
-        //    E se a lista de 'results' não é nula
-        if (body.responseCode == 0 && body.results != null) {
-            // SUCESSO! Retorna a lista de perguntas
-            return body.results
-        } else {
-            // Se a API retornou um erro (responseCode != 0) ou uma lista nula,
-            // apenas retorne uma lista vazia. Isso não é um crash,
-            // é um resultado esperado (ex: "Não há perguntas para esta categoria").
-            return emptyList()
-        }
-    } // Fim da getQuestionsFromapi
-    // --- FIM DA MODIFICAÇÃO ---
+    }
 
 
     suspend fun insertUser(user: User) {
